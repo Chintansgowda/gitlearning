@@ -1,0 +1,79 @@
+pipeline {
+    agent any
+
+    stages {
+        stage('Greet') {
+            steps {
+                echo '👋 Hello from Jenkins!'
+            }
+        }
+
+        stage('System Info') {
+            steps {
+                sh 'echo "🖥️ Running as user: $(whoami)"'
+                sh 'echo "📅 Current time: $(date)"'
+                sh 'hostname'
+            }
+        }
+
+        stage('Create Sample Files') {
+            steps {
+                sh '''
+                    mkdir -p myapp
+                    echo "This is a test file" > myapp/file1.txt
+                    echo "Another test file" > myapp/file2.txt
+                '''
+            }
+        }
+
+        stage('List Files') {
+            steps {
+                sh 'ls -l myapp'
+            }
+        }
+
+        stage('Simulate Build') {
+            steps {
+                echo '⚙️ Simulating build process...'
+                sh 'sleep 2'
+            }
+        }
+
+        stage('Fake Test') {
+            steps {
+                echo '✅ Running dummy tests...'
+                sh 'echo "Test passed: true"'
+            }
+        }
+
+        stage('Archive Files') {
+            steps {
+                sh 'tar -czf myapp.tar.gz myapp'
+                echo '📦 Archived files.'
+            }
+        }
+
+        stage('Deploy Simulate') {
+            steps {
+                sh '''
+                    mkdir -p deploy
+                    mv myapp.tar.gz deploy/
+                    echo "🚀 Deployed to ./deploy folder"
+                '''
+            }
+        }
+    }
+
+    post {
+        success {
+            echo '🎉 Pipeline completed successfully!'
+        }
+        failure {
+            echo '❌ Pipeline failed.'
+        }
+        always {
+            echo '🧹 Cleaning up...'
+            sh 'rm -rf myapp deploy *.tar.gz'
+        }
+    }
+}
